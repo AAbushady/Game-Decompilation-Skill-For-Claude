@@ -39,6 +39,10 @@ Style is a project decision, not a worker's. Never let parallel workers each pic
 would mix styles, and that is worse than either one. Relay the ruling to every worker, and record it in
 `AGENTS.md`.
 
+Ensure that you use the correct compiler. If the user is unsure what the correct compiler is, inspect the binary yourself and list likely options.
+
+If the user doesn't have the compiler installed, instruct them to look on Internet Archive. For console games, inform the user that it's likely the compiler came bundled with the SDK.
+
 ## Slots and branches
 
 - **Worktrees:** each worker gets its own git worktree with its own `build/` directory. Reuse a small fixed set of
