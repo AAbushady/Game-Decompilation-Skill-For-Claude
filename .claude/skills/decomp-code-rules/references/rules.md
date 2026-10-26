@@ -905,4 +905,6 @@ The checker also reports advisory findings that don't block a match:
   - local `extern` declarations (R25);
   - `#if 0` blocks (R37);
   - pointers typed `void *` or `int` only to dodge the real type (R4);
+  - a pointer parameter read only at constant indexes, any of them 2 or more, which is often an object reached
+    through a byte or word pointer (R4);
   - `!!x` and casts to the variable's own type (Section F), which are sometimes human and need a look.
