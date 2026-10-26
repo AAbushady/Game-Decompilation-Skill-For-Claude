@@ -885,7 +885,7 @@ blocks a match only where its row here fires. Each row is narrow enough not to f
 | R2 | an `extern` of a global outside its header, unless the profile relaxes this; one global declared with different types |
 | R4 | a constant offset added to a `(char *)` / `(BYTE *)` cast, followed by a dereference cast; `this` used in such arithmetic; offset macros outside `offsetof` field tables |
 | R13 | a declared virtual with no matching slot in the binary's vtable (the project's vtable data drives this); virtuals named `pad`/`dummy` |
-| R17 | `volatile` on locals, or on members and globals without a `// volatile: <evidence>` note; locals unused in every `#if` branch, unless marked R36; statements marked as probes; empty `if`/`else` blocks and bare `;` statements (empty loop bodies, `case X: ;` and `label: ;` are allowed); `do { } while ( 0 )` outside a macro; self-assignment; the token-bounded literals `+ 0` and `* 1`; padding members (`pad\d*`, `_pad`) not named by the SDK or file format |
+| R17 | `volatile` on locals, or on members and globals without a `// volatile: <evidence>` note; locals unused in every `#if` branch, unless marked R36; statements marked as probes; empty `if`/`else` blocks and bare `;` statements (empty loop bodies, `case X: ;` and `label: ;` are allowed); `do { } while ( 0 )` outside a macro; self-assignment; the token-bounded literals `+ 0` and `* 1`; padding members (`pad\d*`, `_pad`, and the offset forms `pad_0B` and `pad_000`) not named by the SDK or file format |
 | R18 | the inline-assembly tokens of the dialect, outside `ORIGINAL-ASM` functions and listed helpers |
 
 Progress then reports both numbers: **bytes matched** and **matched under the rules** (bytes matched, and every
