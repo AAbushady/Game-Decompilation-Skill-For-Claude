@@ -197,11 +197,16 @@ model->flags |= MODEL_DIRTY;
 These don't count either:
 - casts of `this` followed by offset arithmetic or a dereference;
 - offset macros;
-- a pointer typed `void *` or `int` only to dodge the real type.
+- a pointer typed `void *` or `int` only to dodge the real type;
+- a member's address cast to another pointer type and dereferenced (`*(s32 *)&p->x44 = 0`,
+  `(VECTOR *)&p->x348`), or a struct pointer cast to a scalar pointer and indexed (`((s32 *)p)[0x61]`). Give the
+  member, or the object, its real type.
 
 Byte-pointer arithmetic is legitimate where the data has no fixed struct: file parsers, allocator headers,
 `offsetof` in field-description tables (Quake III's `FOFS`). Passing `this` as a callback cookie, and C++ casts
-between bases and derived classes, are legitimate too.
+between bases and derived classes, are legitimate too. So is one access that spans adjacent fields the original
+punned, such as clearing several byte fields with one word store or reading two bytes as a halfword, where those
+fields are used one at a time elsewhere. It carries a `// pun: <evidence>` note on its line.
 
 ### R5. Use an enum for a proven finite set of values. [evidence]
 
@@ -883,7 +888,7 @@ blocks a match only where its row here fires. Each row is narrow enough not to f
 |---|---|
 | R1 | the same type name defined in two files with different bodies; a struct whose fields copy a prefix of another struct's fields **and** that is accessed through a cast to or from that struct; a `class`/`struct` keyword mismatch |
 | R2 | an `extern` of a global outside its header, unless the profile relaxes this; one global declared with different types |
-| R4 | a constant offset added to a `(char *)` / `(BYTE *)` cast, followed by a dereference cast; `this` used in such arithmetic; offset macros outside `offsetof` field tables |
+| R4 | a constant offset added to a `(char *)` / `(BYTE *)` cast, followed by a dereference cast; `this` used in such arithmetic; offset macros outside `offsetof` field tables; an address, or a struct pointer, cast to another non-`void` pointer type and then dereferenced or indexed, without a `// pun: <evidence>` note on its line |
 | R13 | a declared virtual with no matching slot in the binary's vtable (the project's vtable data drives this); virtuals named `pad`/`dummy` |
 | R17 | `volatile` on locals, or on members and globals without a `// volatile: <evidence>` note; locals unused in every `#if` branch, unless marked R36; statements marked as probes; empty `if`/`else` blocks and bare `;` statements (empty loop bodies, `case X: ;` and `label: ;` are allowed); `do { } while ( 0 )` outside a macro; self-assignment; the token-bounded literals `+ 0` and `* 1`; padding members (`pad\d*`, `_pad`, and the offset forms `pad_0B` and `pad_000`) not named by the SDK or file format |
 | R18 | the inline-assembly tokens of the dialect, outside `ORIGINAL-ASM` functions and listed helpers |
