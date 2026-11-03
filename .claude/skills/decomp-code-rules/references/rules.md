@@ -216,6 +216,25 @@ A note makes only these puns legitimate. A pointer kept in a member declared as 
 as an array, or a block cast to another object's struct is a wrong declared type. Review rejects its note, and the
 function stays `MATCH-PENDING` until the member or the object has its real type.
 
+Objects of different kinds can keep different things in the same bytes: one kind keeps a position where another
+keeps links to other objects, and shared routines handle both. Where no symbols, prototypes or debug build show how
+the original declared such a slot, declare it as a named union with one form per layout the kinds use. Each form is
+a struct whose members take the widths, signs and types that kind's code gives them, named as the project names
+other members. Generic arrays by width (`s16 h[6]`) are no form, since they name no member and only respell the
+cast. The union's comment marks it as a reconstruction whose original declaration is unknown. Per-kind structs need
+a cast wherever a kind hands its object to a shared routine, so the union is the better reconstruction. Where
+several handlers of one kind read a run of the slot through one pointer, the run is an array in that kind's form,
+and the union covers the whole region the array crosses, other kinds' members included.
+
+```c
+/* The 12 bytes at 0xCC in the forms the kinds use them. A reconstruction: the original's declaration of a slot its
+   kinds share is unknown, and this union records only the forms the bytes take. */
+typedef union ObjSlotCC {
+    struct { struct Part *xCC; struct Part *xD0; struct Part *xD4; } parts; /* the kinds with parts */
+    struct { u8 state; s8 flag; u16 xCE; u16 delay; u16 xD2; u16 xD4; s16 xD6; } timer;
+} ObjSlotCC;
+```
+
 ### R5. Use an enum for a proven finite set of values. [evidence]
 
 ❌
