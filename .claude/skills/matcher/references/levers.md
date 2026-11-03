@@ -111,7 +111,9 @@ authored boundary. Do not assume that emitted arithmetic was handwritten.
   a typed pointer local, `T **q = &p->first; q[0] ... q[k]`. A match across several handlers of one kind is
   evidence the original kept such a pointer, and then the run is an array of that kind's layout. Declare it as one
   rather than indexing past the member the pointer starts from. The cast spelling `*(T **)&p->m` matches for the
-  same reason, which is weak evidence that the original cast.
+  same reason, which is weak evidence that the original cast. Decide the pointer per kind, not per array: one
+  kind's handlers can read an array through a pointer local while another kind's read the same array as a member,
+  and each kind's A/B shows which.
 - **By-value accessors can need unnamed temporaries.** Naming the temporary may let the compiler delete its
   dead stores; repeating `obj->Pos().x`-style calls can restore frame homes otherwise unreachable.
 - **Named result references sequence code.** Keep them for stream and operator chains and other sequencing
