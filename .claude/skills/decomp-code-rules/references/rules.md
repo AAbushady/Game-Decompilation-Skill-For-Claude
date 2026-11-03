@@ -206,7 +206,15 @@ Byte-pointer arithmetic is legitimate where the data has no fixed struct: file p
 `offsetof` in field-description tables (Quake III's `FOFS`). Passing `this` as a callback cookie, and C++ casts
 between bases and derived classes, are legitimate too. So is one access that spans adjacent fields the original
 punned, such as clearing several byte fields with one word store or reading two bytes as a halfword, where those
-fields are used one at a time elsewhere. It carries a `// pun: <evidence>` note on its line.
+fields are used one at a time elsewhere. It carries a `// pun: <evidence>` note on its line. The reverse is
+legitimate on the same terms: one byte or halfword that the original stores or loads inside a wider member, which
+other functions use at its declared width, reached by indexing the member's address
+(`((u8 *)&p->xBC)[1] = 8; // pun: sb 0xBD`). Its note names the instruction and the offset, and the index stays
+inside the member. A member that no function uses at its declared width has the wrong type, so declare its parts.
+
+A note makes only these puns legitimate. A pointer kept in a member declared as a scalar, a scalar member indexed
+as an array, or a block cast to another object's struct is a wrong declared type. Review rejects its note, and the
+function stays `MATCH-PENDING` until the member or the object has its real type.
 
 ### R5. Use an enum for a proven finite set of values. [evidence]
 
