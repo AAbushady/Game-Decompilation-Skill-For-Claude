@@ -104,6 +104,14 @@ authored boundary. Do not assume that emitted arithmetic was handwritten.
   temporary, the reuse of a dead parameter's home, or a spill; classify which before editing.
 - **Pointer and base locals:** test them where retail folds a subobject offset into one `lea` or reuses a receiver
   across stores. Remove aliases where retail advances the parameter itself or reloads instead of caching.
+- **A pointer local can hold a load in place (GCC 2.x).** A member read (`p->m`, a COMPONENT_REF) marks its memory
+  as in-struct, and the scheduler may move it above stores to fixed-address scalars (globals). A read through a
+  pointer variable (`*q`, `q[k]`) isn't marked, so it stays behind them. Where retail keeps such a load after a run
+  of global stores and a member read hoists it (one `nop` fewer, a branch offset one short), read the run through
+  a typed pointer local, `T **q = &p->first; q[0] ... q[k]`. A match across several handlers of one kind is
+  evidence the original kept such a pointer, and then the run is an array of that kind's layout. Declare it as one
+  rather than indexing past the member the pointer starts from. The cast spelling `*(T **)&p->m` matches for the
+  same reason, which is weak evidence that the original cast.
 - **By-value accessors can need unnamed temporaries.** Naming the temporary may let the compiler delete its
   dead stores; repeating `obj->Pos().x`-style calls can restore frame homes otherwise unreachable.
 - **Named result references sequence code.** Keep them for stream and operator chains and other sequencing
